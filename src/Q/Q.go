@@ -94,7 +94,9 @@ func (q Q) EnQ(msg []byte, size int64) int {
 	return 0
 }
 
-/* After this video operation */
+/*
+ * DQ Message returns QElement, bool
+ */
 func (q Q) DQ() (QEle, bool) {
 
 	var tmsg QEle
