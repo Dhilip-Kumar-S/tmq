@@ -16,7 +16,7 @@ type MSG struct {
 func main () {
 
 	var err error
-	c, err := net.Dial ("tcp", "[127.0.0.1]:6060")
+	c, err := net.Dial ("tcp", "[192.168.1.7]:6060")
 	
 	if err != nil {
 		fmt.Println("Unable to Dial:", err)

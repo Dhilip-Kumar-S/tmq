@@ -28,13 +28,13 @@ func Server(port string) bool {
 	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatal(err)
-		panic("Server Failed:" + err)
+		panic("Server Failed:")
 	}
 	for {
 
-		conn, err := l.Accept()
+		conn, err := ln.Accept()
 		if err != nil {
-			log.Fatal("Accept() Error:" + err)
+			log.Fatal("Accept() Error:")
 		}
 		go QWorker(conn)
 	}
@@ -46,7 +46,7 @@ type Protocol struct {
 	len int // Length of the message to read on this socekt
 }
 
-func QWorker(conn Conn) bool {
+func QWorker(conn net.Conn) bool {
 
 	var msg Protocol
 	/* Wait for a message */

@@ -53,7 +53,7 @@ func SubQOptions(tmpQ Q.Q) {
 
 	if opt == 1 {
 		fmt.Printf("Enter message\n")
-		fmt.Scanf("%d", &msg)
+		fmt.Scanf("%s", &msg)
 		tmpQ.EnQ([]byte(msg), int64(len(msg)))
 		fmt.Println ("Enqued")
 	} else {
