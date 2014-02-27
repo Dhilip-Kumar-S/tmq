@@ -3,18 +3,20 @@ package Q
 import (
 	"log"
 	"net"
+	"tcp"
 )
 
 const (
-	CREATE = iota
-	DELETE
-	OPEN
-	CLOSE
-	ENQ
-	DEQ
-	TS
-	TE
-	TA
+	CREATE = iota // 0
+	DELETE        // 1
+	OPEN          // 2
+	CLOSE         // 3
+	ENQ           // 4
+	DEQ           // 5
+	TS            // 6
+	TE            // 7
+	TA            // 8
+	SELECT        // 9
 )
 
 /*
@@ -23,13 +25,14 @@ const (
  * Each Go routine will be capable of handling requests.
  */
 
-func Server(port string) bool {
+func Start(port string) {
 
 	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatal(err)
 		panic("Server Failed:")
 	}
+
 	for {
 
 		conn, err := ln.Accept()
@@ -41,25 +44,51 @@ func Server(port string) bool {
 
 }
 
-type Protocol struct {
-	op  int // The operation you want to perform on the server
-	len int // Length of the message to read on this socekt
+type TRANSENTRY struct {
+	mtype byte
+	mlen  int32
+	msg   []byte
 }
 
 func QWorker(conn net.Conn) bool {
 
-	var msg Protocol
+	var mtype byte
+	var err error
+
+	differ conn.Close()
+	
+	var inTransaction bool
+
+	inTransaction = false
 	/* Wait for a message */
+
+	transBuffer := make(map[string]TRANSENTRY)
 
 	for {
 
-		switch msg.op {
+		mtype, err = ReadBYTE(conn)
+		
+		if err != nil {
+			log.Fatal ("QWorker: Reading type failed. Closing Client", err)
+			break
+		}
+		
+		switch mtype {
 		case CREATE:
 			/*
 			 * Read until the file name and persistance value
 			 * Here {namelen(4bytes), name(namelen bytes), store (1 byte)}
 			 * We return a one byte ack 1=created, 0=not created
 			 */
+			var (
+			QNameLen int32
+			QName string
+			)
+			
+			QNameLen, err = tcp.ReadINT32(conn) 
+			QName, err = tcp.ReadNBytes(QNameLen)
+			ack := Create(string(QName), false)
+			tcp.WriteBYTE(conn, ack)
 			break
 		case DELETE: // Delete a Queue
 			/*
@@ -74,7 +103,7 @@ func QWorker(conn net.Conn) bool {
 			 *  OUTPUT {id (32bytes)}
 			 * if open failed all 32 bytes will be zero
 			 */
-
+			
 			break
 		case ENQ:
 			/*
@@ -96,6 +125,9 @@ func QWorker(conn net.Conn) bool {
 			break
 
 		case TA:
+			break
+
+		case SELECT:
 			break
 
 		}

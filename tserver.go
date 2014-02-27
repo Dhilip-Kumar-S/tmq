@@ -40,30 +40,7 @@ func DispStts(s chan int) {
 	}
 }
 
-/*
 
-func ReadN (c net.Conn, n int) ([]byte, error, int) {
-        msg := make ([]byte, n)
-
-        cnt , err := c.Read(msg)
-        if err != nil {
-                return msg,err, cnt
-        }
-        if cnt == n {
-                return msg, nil, cnt
-        }
-        tcnt := cnt
-        for tcnt == n {
-                cnt, err := c.Read(msg[tcnt:])
-                if err != nil {
-                        return msg,err, tcnt
-                }
-                tcnt += cnt
-        }
-        return msg,nil,tcnt
-
-}
-*/
 
 func HandleConnection(c net.Conn, s chan int) {
 

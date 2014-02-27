@@ -129,10 +129,10 @@ func MakeQID(name string) string {
 	return id
 }
 
-func Create(name string, store bool) int {
+func Create(name string, store bool) byte {
 
 	var tmpQ Q
-	var rc int
+	var rc byte
 
 	tmpQ.id = MakeQID(name)
 	tmpQ.name = name
@@ -144,9 +144,9 @@ func Create(name string, store bool) int {
 	_, ok := root.nodes[tmpQ.id]
 	if ok == false {
 		root.nodes[tmpQ.id] = tmpQ
-		rc = 0
+		rc = 0x00
 	} else {
-		rc = 1
+		rc = 0x01
 	}
 	root.rwlock.Unlock()
 
