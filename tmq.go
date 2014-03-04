@@ -5,6 +5,7 @@ import (
 "Q"
 "web"
 "os"
+"runtime"
 )
 
 
@@ -15,6 +16,10 @@ func main () {
 		log.Fatal("Not enough argument")
 		return
 	}
+	
+	runtime.GOMAXPROCS(runtime.NumCPU())
+		
+	
 	Q.Init()
 	portstr := os.Args[1]
 	go web.StartHTTP ()

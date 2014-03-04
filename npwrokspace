@@ -1,0 +1,12 @@
+<NotepadPlus>
+    <Session activeView="0">
+        <mainView activeIndex="4">
+            <File firstVisibleLine="46" xOffset="0" scrollWidth="616" startPos="992" endPos="992" selMode="0" lang="Normal Text" encoding="-1" filename="D:\github\tmq\src\tcp\tcp.go" />
+            <File firstVisibleLine="62" xOffset="0" scrollWidth="532" startPos="1389" endPos="1389" selMode="0" lang="Normal Text" encoding="-1" filename="D:\github\tmq\src\Q\QWorker.go" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="406" startPos="164" endPos="164" selMode="0" lang="Normal Text" encoding="-1" filename="D:\github\tmq\tmq.go" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="378" startPos="0" endPos="0" selMode="0" lang="Normal Text" encoding="-1" filename="D:\github\tmq\src\web\web.go" />
+            <File firstVisibleLine="133" xOffset="0" scrollWidth="637" startPos="3237" endPos="3237" selMode="0" lang="Normal Text" encoding="-1" filename="D:\github\tmq\src\Q\Q.go" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>

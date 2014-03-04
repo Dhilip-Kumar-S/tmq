@@ -26,8 +26,6 @@ const (
  */
 
 func StartTCP(port string) {
-
-		
 	
 	
 	ln, err := net.Listen("tcp", ":"+port)
@@ -114,17 +112,24 @@ func QWorker(conn net.Conn) bool {
 			var (
 				QNameLen int32
 				QName    []byte
-				q        Q
-				ok       bool
+			
 			)
 
 			QNameLen, err = tcp.ReadINT32(conn)
+			if err != nil {
+				log.Printf("OPEN: Error reading qname len %d, %v\n", QNameLen, err)
+			}
 			QName, err = tcp.ReadNBytes(conn, QNameLen)
-			q, ok = Open(string(QName))
+			if err != nil {
+				log.Printf("OPEN: Error reading qname %s, %v\n", string(QNameLen), err)
+			}
+			q, ok := Open(string(QName))
 			if ok {
+				//log.Printf ("Q is valid sending %s\n", q.id)
 				tcp.WriteMQID(conn, q.id)
 			} else {
-				tcp.WriteMQID(conn, "00000000000000000000000000000000")
+				//log.Printf ("Q is NOT valid sending %s\n", "<NIL>000000000000000000000000000<NIL>000000000000000000000000000")
+				tcp.WriteMQID(conn, "<NIL>000000000000000000000000000<NIL>000000000000000000000000000")
 			}
 
 			break

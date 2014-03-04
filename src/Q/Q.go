@@ -14,6 +14,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"sync"
+	"fmt"
 )
 
 /*
@@ -68,7 +69,7 @@ func ListQ() []string {
 	list := make([]string, len(root.nodes))
 
 	for _, val := range root.nodes {
-		list[i] = val.name
+		list[i] = fmt.Sprintf("%s has %d messages, opened by %d clients", val.name,  val.l.Len(), val.ref)
 		i++
 	}
 
@@ -155,12 +156,16 @@ func Create(name string, store bool) byte {
 
 func Open(name string) (Q, bool) {
 
+	id := MakeQID(name)
 	root.rwlock.RLock()
-	tQ, ok := root.nodes[MakeQID(name)]
+	tQ, ok := root.nodes[id]
 	if ok == true {
-		tQ.mutex.Lock()
+	
+		root.nodes[id].mutex.Lock()
 		tQ.ref++
 		tQ.mutex.Unlock()
+		//root.nodes[id] = tQ		
+	
 	}
 	root.rwlock.RUnlock()
 

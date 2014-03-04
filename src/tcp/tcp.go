@@ -55,12 +55,12 @@ func ReadNBytes(conn net.Conn, N int32) ([]byte, error) {
 }
 
 func ReadMQID(conn net.Conn) (string, error) {
-	rbytes := make([]byte, 32)
+	rbytes := make([]byte, 64)
 
-	cnt, err := io.ReadAtLeast(conn, rbytes, 32)
+	cnt, err := io.ReadAtLeast(conn, rbytes, 64)
 
 	if err != nil {
-		log.Fatal("ReadMQID() Unable to read ", 32, " Bytes read only", cnt, " bytes")
+		log.Fatal("ReadMQID() Unable to read ", 64, " Bytes read only", cnt, " bytes")
 
 	}
 

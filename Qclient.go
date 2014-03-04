@@ -1,15 +1,16 @@
 package main
 
 import (
-//	"bytes"
-//	"encoding/binary"
+	//	"bytes"
+	//	"encoding/binary"
+	"container/list"
 	"fmt"
+	"log"
 	"net"
 	"os"
-	"container/list"
 	"strconv"
 	"tcp"
-	"log"
+	"strings"
 )
 
 const (
@@ -26,15 +27,15 @@ const (
 )
 
 var (
-  COUNT int
-  server string
-  idlist []string
-  qbuffer map[string]list.List
-  verbose bool
-  sconn	net.Conn
+	COUNT   int
+	server  string
+	idlist  []string
+	qbuffer map[string]list.List
+	verbose bool
+	sconn   net.Conn
 )
 
-func vprintf (format string, v ...interface{}) {
+func vprintf(format string, v ...interface{}) {
 
 	if verbose {
 		log.Printf(format, v...)
@@ -42,80 +43,117 @@ func vprintf (format string, v ...interface{}) {
 }
 
 func testCREATE() bool {
-	
-	var tmp int
-	vprintf ("Creating Q\n")
-	for i:=0; i<COUNT; i++ {
-		cnt , err := tcp.WriteBYTE(sconn, CREATE)
+
+	vprintf("Creating Q\n")
+	for i := 0; i < COUNT; i++ {
+		cnt, err := tcp.WriteBYTE(sconn, CREATE)
 		if err != nil {
-			vprintf ("Writebyte error wrote %dbytes error %v\n", cnt, err)
+			vprintf("Writebyte error wrote %dbytes error %v\n", cnt, err)
 		}
-		vprintf ("Writebyte wrote %dbytes error %v\n", cnt, err)
-		//fmt.Scanf("%d", &tmp)
-		qname := []byte("TEMPQ"+strconv.Itoa(i))
-		cnt , err = tcp.WriteINT32 (sconn, int32(len(qname)))
+
+		qname_str := "TEMPQ" + strconv.Itoa(i)
+		qname := []byte(qname_str)
+
+		cnt, err = tcp.WriteINT32(sconn, int32(len(qname)))
 		if err != nil {
-			vprintf ("Writebyte error wrote %dbytes error %v\n", cnt, err)
+			vprintf("Writebyte error wrote %dbytes error %v\n", cnt, err)
 		}
-		vprintf ("qnamelen wrote value=%d %dbytes error %v\n", int32(len(qname)), cnt, err)
-		//fmt.Scanf("%d", &tmp)
-		cnt , err = tcp.WriteBytes (sconn, qname)
+
+		cnt, err = tcp.WriteBytes(sconn, qname)
 		if err != nil {
-			vprintf ("Writebyte error wrote %dbytes error %v\n", cnt, err)
+			vprintf("Writebyte error wrote %dbytes error %v\n", cnt, err)
 		}
-		vprintf ("Qname wrote %dbytes error %v\n", cnt, err)
-		//fmt.Scanf("%d", &tmp)
+
 		ack, ok := tcp.ReadBYTE(sconn)
 		if ok != nil {
 			vprintf("Error Creating Q %v error %v\n", qname, ok)
 			return false
 		}
-		//fmt.Scanf("%d", &tmp)
+
 		if ack == 0x01 {
-			vprintf ("Q Created\n")
+			vprintf("Q %s Created\n", qname_str)
 		} else {
-			vprintf ("Q Creation failed ack=%v\n", ack)
+			vprintf("Q %s Already Exisist ACK=%v\n", qname_str, ack)
 		}
 	}
-	fmt.Scanf("%d", &tmp)
+	
 	return true
 }
 
-func testOPEN () bool {
+func testOPEN() bool {
 
+	for i := 0; i < COUNT; i++ {
+		cnt, err := tcp.WriteBYTE(sconn, OPEN)
+		if err != nil {
+			vprintf("WriteBYTE error wrote %dbytes error %v\n", cnt, err)
+		}
+
+		qname_str := "TEMPQ" + strconv.Itoa(i)
+		qname := []byte(qname_str)
+
+		cnt, err = tcp.WriteINT32(sconn, int32(len(qname)))
+		if err != nil {
+			vprintf("WriteINT32 error wrote %dbytes error %v\n", cnt, err)
+		}
+
+		cnt, err = tcp.WriteBytes(sconn, qname)
+		if err != nil {
+			vprintf("Writebyte error wrote %dbytes error %v\n", cnt, err)
+		}
+		
+		id, err := tcp.ReadMQID(sconn)
+		if err != nil {
+			vprintf("ReadMQID error wrote %dbytes error %v\n", cnt, err)
+		} else {
+			if strings.Contains(id, "<NIL>") {
+				vprintf ("OPEN Q:%s FAILED recived %s\n", qname_str, id)
+			} else {
+				vprintf ("OPEN Q: %s SUCESS\n", qname_str)
+				idlist[i] = id
+			}
+		   
+		}
+		
+	}
 	return true
 }
 
-func testENQ () bool {
+func testENQ() bool {
+
+	for i:=0; i<COUNT; i++ {
+		for j:=0; j<COUNT/2; j++ {
+			
+		}
+	}
 	return true
 }
 
-func testDQ () bool {
+func testDQ() bool {
 	return true
 }
 
-func runTest (test func()bool, val string) {
+func runTest(test func() bool, val string) {
 	if test() {
-		log.Printf("[%s]...\t...\t...\t...[OK]", val)
+		log.Printf("[%s]\t...\t...\t...\t...[OK]", val)
 	} else {
-		log.Printf("[%s]...\t...\t...\t...[FAIL]", val)
+		log.Printf("[%s]\t...\t...\t...\t...[FAIL]", val)
 	}
 }
 
 func testAll() bool {
-	
+
 	var err error
-/* Connect to the server */
+	/* Connect to the server */
 	sconn, err = net.Dial("tcp", server)
-	
+
 	if err != nil {
-		vprintf ("Error Connecting %v\n", err)
+		vprintf("Error Connecting %v\n", err)
 		return false
 	} else {
-		vprintf ("Connected to Server %v\n", sconn)
+		vprintf("Connected to Server %v\n", sconn)
 	}
-		
-/* Run the tests */
+
+	/* Run the tests */
 	runTest(testCREATE, "testCREATE")
 	runTest(testOPEN, "testOPEN")
 	runTest(testENQ, "testENQ")
@@ -124,26 +162,24 @@ func testAll() bool {
 	return true
 }
 
-
-
 func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("In suffcient Arguments\nShould be:\n$", os.Args[0], "<[ip]:port> <count>")
 	}
-	
-	
-	COUNT , _ = strconv.Atoi(os.Args[2])
+
+	COUNT, _ = strconv.Atoi(os.Args[2])
 	server = os.Args[1]
-	idlist = make([]string, COUNT)
+	idlist = make([]string, COUNT+1)
 	qbuffer = make(map[string]list.List)
 	verbose = true
-	
-	
+
 	if testAll() {
-		log.Println ("[All]...................................................Passed")
+		log.Println("[All]...................................................Passed")
 	} else {
-		log.Println ("[All]...................................................Failed")
+		log.Println("[All]...................................................Failed")
 	}
-		
+
+	var tmp int
+	fmt.Scanf("%d", &tmp)
 	
 }
