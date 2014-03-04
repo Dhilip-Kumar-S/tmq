@@ -8,8 +8,6 @@ import (
 	"net"
 )
 
-
-
 func ReadINT32(conn net.Conn) (int32, error) {
 
 	var rval int32
@@ -31,25 +29,25 @@ func ReadINT32(conn net.Conn) (int32, error) {
 
 func ReadBYTE(conn net.Conn) (byte, error) {
 
-	rbyte:= make([]byte, 1)
+	rbyte := make([]byte, 1)
 
-	_, err := io.ReadAtLeast(conn, []byte(rbyte), 1)
+	cnt, err := io.ReadAtLeast(conn, rbyte, 1)
 
 	if err != nil {
-		log.Fatal("ReadBYTE() failed")
+		log.Println("ReadBYTE() failed:", err," read ",cnt," bytes rbyte=", rbyte)
 	}
 	return rbyte[0], err
 
 }
 
-func ReadNBytes(conn net.Conn, N int) ([]byte, error) {
+func ReadNBytes(conn net.Conn, N int32) ([]byte, error) {
 
 	rbytes := make([]byte, N)
 
-	cnt, err := io.ReadAtLeast(conn, rbytes, N)
+	cnt, err := io.ReadAtLeast(conn, rbytes, int(N))
 
 	if err != nil {
-		log.Fatal("ReadNBytes() Unable to read ", N, " Bytes read only ", cnt, "bytes")
+		log.Fatal("ReadNBytes() Unable to read ", N, " Bytes read only ", cnt, " bytes")
 
 	}
 
@@ -57,17 +55,24 @@ func ReadNBytes(conn net.Conn, N int) ([]byte, error) {
 }
 
 func ReadMQID(conn net.Conn) (string, error) {
-	rbytes := make([]byte,32)
+	rbytes := make([]byte, 32)
 
 	cnt, err := io.ReadAtLeast(conn, rbytes, 32)
 
 	if err != nil {
-		log.Fatal("ReadMQID() Unable to read ", 32, " Bytes read only", cnt, "bytes")
+		log.Fatal("ReadMQID() Unable to read ", 32, " Bytes read only", cnt, " bytes")
 
 	}
 
-	return bytes.NewBuffer(rbytes).String(), err
+	return string(rbytes), err
 
+}
+
+func WriteBYTE(conn net.Conn, b byte) (int, error) {
+
+	Buff := make([]byte, 1)
+	Buff[0] = b
+	return conn.Write(Buff)
 }
 
 func WriteBytes(conn net.Conn, Buff []byte) (int, error) {

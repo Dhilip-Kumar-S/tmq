@@ -144,9 +144,9 @@ func Create(name string, store bool) byte {
 	_, ok := root.nodes[tmpQ.id]
 	if ok == false {
 		root.nodes[tmpQ.id] = tmpQ
-		rc = 0x00
-	} else {
 		rc = 0x01
+	} else {
+		rc = 0x00
 	}
 	root.rwlock.Unlock()
 
