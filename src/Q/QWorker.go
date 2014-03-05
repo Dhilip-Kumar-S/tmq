@@ -141,15 +141,20 @@ func QWorker(conn net.Conn) bool {
 			 */
 			var (
 				id   string
-				q    Q
+				q    *Q
 				msg  []byte
 				mlen int32
+				rc int
 			)
 			id, err = tcp.ReadMQID(conn)
-			q = root.nodes[id]
-			mlen, err = tcp.ReadINT32(conn)
-			msg, err = tcp.ReadNBytes(conn, mlen)
-			rc := q.EnQ(msg, int64(mlen))
+			q = GetQ(id)
+			if q != nil {
+				mlen, err = tcp.ReadINT32(conn)
+				msg, err = tcp.ReadNBytes(conn, mlen)
+				rc = q.EnQ(msg, int64(mlen))
+			} else {
+				rc = 1
+			}
 			if rc == 0 {
 				tcp.WriteBYTE(conn, 0x01)
 			} else {
@@ -159,24 +164,28 @@ func QWorker(conn net.Conn) bool {
 
 		case DEQ:
 			/*
-			 *	INPUT {id (32bytes)}
+			 *	INPUT {id (64bytes)}
 			 *  OUTPUT { msglen(4 bytes), msg (msglen bytes)}
+			 *  IF no message then we send -1 for msg length
 			 */
 			var (
 				id   string
-				q    Q
-				msg  []byte
-				mlen int32
+				q    *Q
+				rc bool
+				msg QEle
 			)
 			id, err = tcp.ReadMQID(conn)
-			q = root.nodes[id]
-			mlen, err = tcp.ReadINT32(conn)
-			msg, err = tcp.ReadNBytes(conn, mlen)
-			rc := q.EnQ(msg, int64(mlen))
-			if rc == 0 {
-				tcp.WriteBYTE(conn, 0x01)
+			q = GetQ(id)
+			if q != nil {
+				msg, rc = q.DQ()
 			} else {
-				tcp.WriteBYTE(conn, 0x00)
+			   rc = false
+			}
+			if rc == true {
+				tcp.WriteINT32(conn, int32(msg.len))
+				tcp.WriteBytes(conn, msg.msg)
+			} else {
+				tcp.WriteINT32(conn, int32(-1))
 			}
 			break
 

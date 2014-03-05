@@ -30,7 +30,7 @@ import (
  */
 type QTree struct {
 	rwlock sync.RWMutex // Read/Write
-	nodes  map[string]Q // Map of Q handle with key as Hash.hash
+	nodes  map[string]*Q // Map of Q handle with key as Hash.hash
 }
 
 /*
@@ -82,7 +82,7 @@ func (q QEle) String() string {
 }
 
 /* Code to perform Enqueu Operation */
-func (q Q) EnQ(msg []byte, size int64) int {
+func (q *Q) EnQ(msg []byte, size int64) int {
 
 	tmsg := QEle{msg, size}
 	q.mutex.Lock()
@@ -98,14 +98,14 @@ func (q Q) EnQ(msg []byte, size int64) int {
 /*
  * DQ Message returns QElement, bool
  */
-func (q Q) DQ() (QEle, bool) {
+func (q *Q) DQ() (QEle, bool) {
 
 	var tmsg QEle
 	rc := false
 
 	q.mutex.Lock()
 	if q.l.Len() > 0 {
-		e := q.l.Back()
+		e := q.l.Front()
 		if e != nil {
 			tmsg = q.l.Remove(e).(QEle)
 			rc = true
@@ -118,7 +118,7 @@ func (q Q) DQ() (QEle, bool) {
 
 func Init() {
 	root.rwlock.Lock()
-	root.nodes = make(map[string]Q)
+	root.nodes = make(map[string]*Q)
 	root.rwlock.Unlock()
 }
 
@@ -130,11 +130,22 @@ func MakeQID(name string) string {
 	return id
 }
 
+func GetQ (id string) *Q {
+	root.rwlock.RLock()
+	tQ, ok := root.nodes[id]
+	root.rwlock.RUnlock()
+	if ok {
+		return tQ
+	} 
+	return nil
+}
+
 func Create(name string, store bool) byte {
 
-	var tmpQ Q
+	var tmpQ *Q
 	var rc byte
 
+	tmpQ = new(Q)
 	tmpQ.id = MakeQID(name)
 	tmpQ.name = name
 	tmpQ.Store = store
@@ -154,14 +165,14 @@ func Create(name string, store bool) byte {
 	return rc
 }
 
-func Open(name string) (Q, bool) {
+func Open(name string) (*Q, bool) {
 
 	id := MakeQID(name)
 	root.rwlock.RLock()
 	tQ, ok := root.nodes[id]
 	if ok == true {
 	
-		root.nodes[id].mutex.Lock()
+		tQ.mutex.Lock()
 		tQ.ref++
 		tQ.mutex.Unlock()
 		//root.nodes[id] = tQ		
@@ -172,7 +183,7 @@ func Open(name string) (Q, bool) {
 	return tQ, ok
 }
 
-func (q Q) Close() {
+func (q *Q) Close() {
 	q.mutex.Lock()
 	q.ref--
 	q.mutex.Unlock()

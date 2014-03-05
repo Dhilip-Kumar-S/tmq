@@ -9,8 +9,8 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"tcp"
 	"strings"
+	"tcp"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	COUNT   int
+	COUNT, MCOUNT   int
 	server  string
 	idlist  []string
 	qbuffer map[string]list.List
@@ -76,7 +76,7 @@ func testCREATE() bool {
 			vprintf("Q %s Already Exisist ACK=%v\n", qname_str, ack)
 		}
 	}
-	
+
 	return true
 }
 
@@ -100,35 +100,80 @@ func testOPEN() bool {
 		if err != nil {
 			vprintf("Writebyte error wrote %dbytes error %v\n", cnt, err)
 		}
-		
+
 		id, err := tcp.ReadMQID(sconn)
 		if err != nil {
 			vprintf("ReadMQID error wrote %dbytes error %v\n", cnt, err)
 		} else {
 			if strings.Contains(id, "<NIL>") {
-				vprintf ("OPEN Q:%s FAILED recived %s\n", qname_str, id)
+				vprintf("OPEN Q:%s FAILED recived %s\n", qname_str, id)
 			} else {
-				vprintf ("OPEN Q: %s SUCESS\n", qname_str)
+				vprintf("OPEN Q: %s SUCESS\n", qname_str)
 				idlist[i] = id
 			}
-		   
+
 		}
-		
+
 	}
 	return true
 }
 
 func testENQ() bool {
 
-	for i:=0; i<COUNT; i++ {
-		for j:=0; j<COUNT/2; j++ {
-			
+	for i, id := range idlist {
+		
+		for j := 0; j < MCOUNT; j++ {
+		
+			strmsg := "QMESSAGEQ=" + strconv.Itoa(i) + ":" + strconv.Itoa(j)
+			bytemsg := []byte(strmsg)
+			lenmsg := len(bytemsg)
+			tcp.WriteBYTE(sconn, ENQ)
+			tcp.WriteMQID(sconn, id)
+			tcp.WriteINT32(sconn, int32(lenmsg))
+			tcp.WriteBytes(sconn, bytemsg)
+			b, err := tcp.ReadBYTE(sconn)
+			if err != nil {
+				vprintf("READ ERROR ENQUE FAILED\n")
+				return false
+			}
+			if b == 0x00 {
+				vprintf("ENQ() sucess sent=%s\n", strmsg )
+			} else {
+				vprintf("ENQ () FAILED\n")
+			}
 		}
 	}
 	return true
 }
 
 func testDQ() bool {
+
+	for _, id := range idlist {
+		for {
+			
+			tcp.WriteBYTE(sconn, DEQ)
+			tcp.WriteMQID(sconn, id)
+			mlen, err := tcp.ReadINT32(sconn)
+			if err != nil {
+				vprintf("DeQ() error reading len %v\n", err)
+				return false
+			}
+			if mlen == -1 {
+				vprintf("Queue is empty\n")
+				break
+			} else {
+				msg, err := tcp.ReadNBytes(sconn, mlen)
+				if err != nil {
+					vprintf("DeQ() error reading msg %v\n", err)
+					return false
+				} else {
+					vprintf("DeQ() recived %s\n", string(msg))
+				}
+			}
+		}
+
+	}
+
 	return true
 }
 
@@ -163,13 +208,14 @@ func testAll() bool {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("In suffcient Arguments\nShould be:\n$", os.Args[0], "<[ip]:port> <count>")
+	if len(os.Args) <= 3 {
+		log.Fatal("In suffcient Arguments\nShould be:\n$", os.Args[0], " <[ip]:port> <count> <msg_count>")
 	}
 
 	COUNT, _ = strconv.Atoi(os.Args[2])
+	MCOUNT, _ = strconv.Atoi(os.Args[3])
 	server = os.Args[1]
-	idlist = make([]string, COUNT+1)
+	idlist = make([]string, COUNT)
 	qbuffer = make(map[string]list.List)
 	verbose = true
 
@@ -181,5 +227,5 @@ func main() {
 
 	var tmp int
 	fmt.Scanf("%d", &tmp)
-	
+
 }
