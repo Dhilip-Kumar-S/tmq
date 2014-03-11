@@ -225,7 +225,4 @@ func main() {
 		log.Println("[All]...................................................Failed")
 	}
 
-	var tmp int
-	fmt.Scanf("%d", &tmp)
-
 }
