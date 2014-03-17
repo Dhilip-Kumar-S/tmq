@@ -6,6 +6,7 @@ import (
 "web"
 "os"
 "runtime"
+"flag"
 )
 
 
@@ -18,14 +19,20 @@ func main () {
 	}
 	
 	runtime.GOMAXPROCS(runtime.NumCPU())
-		
+	
+	var tport, wport string
 	
 	Q.Init()
-	portstr := os.Args[1]
-	go web.StartHTTP ()
-	log.Println ("Web server is up http://localhost:6060")
-	log.Println ("Q TCP server started at:",portstr)
-	Q.StartTCP (portstr)
+	flag.BoolVar (&(Q.IsVerbose), "v", false, "User This for Trace message")
+	flag.StringVar ( &tport, "port", "6161", "Port number to start the tcp server")
+	flag.StringVar ( &wport, "web", "6060", "Port number of the web server")
+	flag.Parse ()
+	
+	
+	go web.StartHTTP (wport)
+	Q.Trace (log.Printf, "Web server is up http://localhost:%s\n", wport)
+	Q.Trace (log.Printf, "Q TCP server started at port:%s\n",tport)
+	Q.StartTCP (tport)
 	log.Println ("Q finished")
 		
 }

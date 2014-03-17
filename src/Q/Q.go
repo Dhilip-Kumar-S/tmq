@@ -40,6 +40,7 @@ type QTree struct {
  */
 
 var root QTree
+var IsVerbose bool
 
 type Q struct {
 	id    string
@@ -61,6 +62,13 @@ type QEle struct {
  ******************************************************************************
  */
 
+/* This function takes a function as the first argumetn adn use it to print the format and the string */
+func Trace (fn  func (string, ...interface{}), fmt string, v ...interface{}) {
+	if IsVerbose {
+		fn (fmt , v...)
+	}
+}
+ 
 /* Will loop throught the root's map of Qs and returns a string array */
 func ListQ() []string {
 
@@ -156,9 +164,9 @@ func Create(name string, store bool) byte {
 	_, ok := root.nodes[tmpQ.id]
 	if ok == false {
 		root.nodes[tmpQ.id] = tmpQ
-		rc = 0x01
-	} else {
 		rc = 0x00
+	} else {
+		rc = 0x01
 	}
 	root.rwlock.Unlock()
 
@@ -183,8 +191,19 @@ func Open(name string) (*Q, bool) {
 	return tQ, ok
 }
 
-func (q *Q) Close() {
+func (q *Q) Close() byte{
+
 	q.mutex.Lock()
-	q.ref--
+	cnt := q.ref
+	if q.ref > 0 {
+		q.ref--
+	}
 	q.mutex.Unlock()
+
+	if cnt <= 0 {
+		return 0x01
+	} else {
+		return 0x00
+	}
+
 }
