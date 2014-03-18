@@ -48,16 +48,40 @@ func StartTCP(port string) {
 }
 
 type TRANSENTRY struct {
-	mlen  int32
+	mlen  int64
 	msg   []byte
 }
 
-func rollBackTrans (T map[string] []TRANSENTRY, tFlag bool) {
+func rollBackTrans (T *(map[string] []TRANSENTRY), tFlag *bool) {
 
-	if tFlag {
-		Trace (log.Printf, "Inside transaction\n")
+	if *tFlag {
+		Trace (log.Printf, "Inside transaction roll back\n")
+		for tid, tv := range (*T) {
+		
+			tq := GetQ (tid)
+			
+			if tq != nil {
+				for _ , tmsg := range(tv) {
+					
+					tq.EnQ (tmsg.msg, tmsg.mlen)
+					
+				}
+			}
+			delete (*T, tid)
+		}
 	}
-	
+	*tFlag = false
+}
+
+func DeleteTrans (T *(map[string] []TRANSENTRY), tFlag *bool) {
+	if *tFlag {
+		Trace (log.Printf, "Deleting the transaction\n")
+		
+		for k,_ := range (*T) {
+			delete (*T, k)
+		}
+	}
+	*tFlag = false
 }
 
 func QWorker(conn net.Conn) bool {
@@ -67,12 +91,9 @@ func QWorker(conn net.Conn) bool {
 	var tBuff map[string] []TRANSENTRY
 	var tFlag bool
 	
-	/*
-	defer (
-	rollBackTrans (tBuff, tFlag)
-	conn.Close()
-	)
-*/
+
+	defer rollBackTrans (&tBuff, &tFlag)
+	defer conn.Close()
 
 	
 	/* Wait for a message */
@@ -233,7 +254,18 @@ func QWorker(conn net.Conn) bool {
 			} else {
 			   rc = false
 			}
+			
 			if rc == true {
+				if tFlag {
+					Trace (log.Printf, "Buffering in transaction\n")
+					_, ok := tBuff [id]
+					if ok {
+						tBuff[id] = append(tBuff[id], TRANSENTRY{msg.len, msg.msg})
+					} else {
+						tBuff[id] = make([]TRANSENTRY, 0)
+						tBuff[id] = append(tBuff[id], TRANSENTRY{msg.len, msg.msg})
+					}
+				}
 				tcp.WriteINT32(conn, int32(msg.len))
 				Trace (log.Printf, "Wrote mlen = %v\n", msg.len)
 				tcp.WriteBytes(conn, msg.msg)
@@ -242,6 +274,7 @@ func QWorker(conn net.Conn) bool {
 				tcp.WriteINT32(conn, int32(-1))
 				Trace (log.Printf, "Q EMPTY Wrote = %v\n", -1)
 			}
+			
 			break
 
 		case TS:
@@ -256,13 +289,18 @@ func QWorker(conn net.Conn) bool {
 
 		case TE:
 			Trace (log.Printf, "Q_TRANSEND()\n")
+			DeleteTrans (&tBuff,  &tFlag)
+			tcp.WriteBYTE (conn, 0x00)
 			break
 
 		case TA:
 			Trace (log.Printf, "Q_TRANSABORT()\n")
+			rollBackTrans (&tBuff, &tFlag)
+			tcp.WriteBYTE (conn, 0x00)
 			break
 
 		case SELECT:
+			
 			break
 
 		}

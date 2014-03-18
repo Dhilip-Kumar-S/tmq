@@ -14,7 +14,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"sync"
-	"fmt"
+	//"fmt"
 )
 
 /*
@@ -70,23 +70,39 @@ func Trace (fn  func (string, ...interface{}), fmt string, v ...interface{}) {
 }
  
 /* Will loop throught the root's map of Qs and returns a string array */
-func ListQ() []string {
+func ListQ() []*Q {
 
 	var i int
 
-	list := make([]string, len(root.nodes))
+	rlist := make([]*Q, len(root.nodes))
 
 	for _, val := range root.nodes {
-		list[i] = fmt.Sprintf("%s has %d messages, opened by %d clients", val.name,  val.l.Len(), val.ref)
+		rlist[i] = val
 		i++
 	}
 
-	return list
+	return rlist
 }
 
 /* A string Converter of a Q message */
 func (q QEle) String() string {
 	return string(q.msg)
+}
+
+func (q *Q) Name () string {
+	return q.name
+}
+
+func (q *Q) Len () int {
+	return q.l.Len()
+}
+
+func (q *Q) Id () string {
+	return q.id
+}
+
+func (q *Q) Ref () int {
+	return int(q.ref)
 }
 
 /* Code to perform Enqueu Operation */

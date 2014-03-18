@@ -4,7 +4,7 @@ import (
 	//	"bytes"
 	//	"encoding/binary"
 	"container/list"
-	"fmt"
+//	"fmt"
 	"log"
 	"net"
 	"os"
@@ -177,6 +177,17 @@ func testDQ() bool {
 	return true
 }
 
+func testTS () bool {
+	tcp.WriteBYTE(sconn, TS)
+	ack, _ := tcp.ReadBYTE (sconn)
+	
+	if ack == 0x00 {
+		return true
+	} else {
+		return false 
+	}
+}
+
 func runTest(test func() bool, val string) {
 	if test() {
 		log.Printf("[%s]\t...\t...\t...\t...[OK]", val)
@@ -201,9 +212,9 @@ func testAll() bool {
 	/* Run the tests */
 	runTest(testCREATE, "testCREATE")
 	runTest(testOPEN, "testOPEN")
+	runTest (testTS, "testTS")
 	runTest(testENQ, "testENQ")
-	runTest(testDQ, "testDQ")
-
+	runTest (testDQ, "testDQ")
 	return true
 }
 
