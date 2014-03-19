@@ -9,8 +9,8 @@ tmq is Transactional Message Queue.  Once TransStart is seen this buffers all re
 
 'tmq.exe' in windows and 'tmq' in Linux are the final usable binaries.  Have tried best to follow google go's reccomendation on how to oranise go source code to get started you simply have to do below in a desired directory (ofcourse you need go installed in the intended environment)
   
-$git pull https://github.com/Dhilip-Kumar-S/tmq.git 
-
+$git pull https://github.com/Dhilip-Kumar-S/tmq.git
+$cd tmq
 $go build tmq.go
 
 
@@ -19,16 +19,16 @@ that is all.  Simples :-)
 *********************************************************************************************************************************
 by default 'tmq' starts the tcp server at port 6161 and web server that displays statistical information at port 6060
 
-  `D:\github\tmq>tmq -v`
-  `2014/03/18 23:02:22 Web server is up http://localhost:6060`
-  `2014/03/18 23:02:22 Q TCP server started at port:6161`
+  `D:\github\tmq>tmq -v`  
+  `2014/03/18 23:02:22 Web server is up http://localhost:6060`  
+  `2014/03/18 23:02:22 Q TCP server started at port:6161`  
 
 
 this can be changed 
 
-  `D:\github\tmq>tmq -port=9191 -web=9090 -v`
-  `2014/03/18 23:04:10 Web server is up http://localhost:9090`
-  `2014/03/18 23:04:10 Q TCP server started at port:9191`
+  `D:\github\tmq>tmq -port=9191 -web=9090 -v`  
+  `2014/03/18 23:04:10 Web server is up http://localhost:9090`  
+  `2014/03/18 23:04:10 Q TCP server started at port:9191`  
 
 -v option enables verbose mode to print each and every activity of the message queue server.
 
