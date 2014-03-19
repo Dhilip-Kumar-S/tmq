@@ -7,17 +7,35 @@ import (
 )
 
 func QData (w http.ResponseWriter, r *http.Request) {
-
-	//Q.Trace (fmt.Printf, "request %v\n", http.Request)
-	fmt.Printf ( "request %v\n", r.URL.Path)
+	
 	fmt.Printf ( "RawQuery %v\n", r.URL.RawQuery)
-	fmt.Printf ( "Fragment %v\n", r.URL.Fragment)
+	nEle, arryEle, qname := Q.ListQ (r.URL.RawQuery)
+	
+	switch (nEle) {
+		case -1:
+			fmt.Fprintf(w, "<h1 align=\"center\" color=\"red\"> Sorry, such Queue with id = %s not available... </h1>", qname)
+		break
+		
+		case 0:
+			fmt.Fprintf (w, "<h1 align=\"center\">%s</h1> <table border=2> <tr> <th> FRONT </th> <td> ... </td> <td> ... </td> <td> ... </td><th> END </th> </tr> </table>", qname )
+		break
+		
+		default:
+			fmt.Fprintf (w, "<h1 align=\"center\">%s</h1> <table border=2> <tr> <th> FRONT </th>", qname)
+			for _, val := range (arryEle) {
+				fmt.Fprintf (w, "<td> <b>&lt;====</b> </td> <td> %v </td>", val)
+			}
+			fmt.Fprintf (w, "<th> <b>&lt;====</b> </th> <th> END </th> </tr> </table>")
+		break
+	
+	}
+	
 	
 }
 
 func QStatus(w http.ResponseWriter, r *http.Request) {
 
-	qlist := Q.ListQ()
+	qlist := Q.ListAll()
 	
 	fmt.Fprintf(w, "<h1 align=\"center\">Queues</h1>")
 	fmt.Fprintf (w, "<table align=\"center\" border=2> <tr align=\"center\"> <th> Name </th> <th> Len </th> <th> Opened </th></tr>\n")

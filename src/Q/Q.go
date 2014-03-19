@@ -68,9 +68,35 @@ func Trace (fn  func (string, ...interface{}), fmt string, v ...interface{}) {
 		fn (fmt , v...)
 	}
 }
+
+
+func ListQ (id string) (int, []QEle, string) {
+	
+	var len int
+	var rlist []QEle
+	var qname string
+	
+	tQ := GetQ (id)
+	if tQ != nil {
+		len = tQ.l.Len()
+		rlist = make([]QEle, len)
+		i := 0
+		for e := tQ.l.Front(); e != nil; e = e.Next() {
+			rlist[i] = e.Value.(QEle)
+			i++
+		}
+		return i, rlist, tQ.name
+		
+	} else {
+	
+		return -1, rlist, qname
+		
+	}
+	
+}
  
-/* Will loop throught the root's map of Qs and returns a string array */
-func ListQ() []*Q {
+/* Will loop throught the root's map of Qs and returns a array of Queues */
+func ListAll() []*Q {
 
 	var i int
 

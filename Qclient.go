@@ -188,6 +188,17 @@ func testTS () bool {
 	}
 }
 
+func testTE () bool {
+	tcp.WriteBYTE(sconn, TE)
+	ack, _ := tcp.ReadBYTE (sconn)
+	
+	if ack == 0x00 {
+		return true
+	} else {
+		return false 
+	}
+}
+
 func runTest(test func() bool, val string) {
 	if test() {
 		log.Printf("[%s]\t...\t...\t...\t...[OK]", val)
@@ -210,11 +221,12 @@ func testAll() bool {
 	}
 
 	/* Run the tests */
-	runTest(testCREATE, "testCREATE")
-	runTest(testOPEN, "testOPEN")
+	runTest (testCREATE, "testCREATE")
+	runTest (testOPEN, "testOPEN")
 	runTest (testTS, "testTS")
-	runTest(testENQ, "testENQ")
+	runTest (testENQ, "testENQ")
 	runTest (testDQ, "testDQ")
+	runTest (testTE, "testTE")
 	return true
 }
 

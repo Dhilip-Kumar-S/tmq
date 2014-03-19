@@ -15,8 +15,8 @@ $go build tmq.go
 
 
 that is all.  Simples :-)
-======================================================================================================================
 
+*********************************************************************************************************************************
 by default 'tmq' starts the tcp server at port 6161 and web server that displays statistical information at port 6060
 
   D:\github\tmq>tmq -v
@@ -35,34 +35,24 @@ this can be changed
   2014/03/18 23:04:10 Q TCP server started at port:9191
 
 -v option enables verbose mode to print each and every activity of the message queue server.
-===
+
 
 Supported Queue Operations:
 ===
   1) CREATE Queue, QName 
-
   2) OPEN Queue, QName 
-
   3) EnQueue, mq-id   
-
   4) DeQueue, mq-id 
-
   5) CLOSE Queue, mq-id 
-
   6) DELETE Queu, QName 
-
   7) SELECT Queue, mq-id  ==> return the number of elements 
-
   8) Transaction Start 
-
   9) Transaction End 
-
   10) Transaction Abort 
-
 
 Each queue operation is atomic. 
 
-===
+
 
 ToDo:
 ===
