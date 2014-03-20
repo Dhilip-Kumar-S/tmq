@@ -94,6 +94,19 @@ func WriteINT32(conn net.Conn, v int32) (int, error) {
 	return conn.Write(tbuff.Bytes())
 }
 
+func WriteINT64(conn net.Conn, v int64) (int, error) {
+
+	tbuff := new(bytes.Buffer)
+	err := binary.Write(tbuff, binary.BigEndian, v)
+
+	if err != nil {
+		log.Fatal("WriteINT64() failed:", err)
+		return 0, err
+	}
+
+	return conn.Write(tbuff.Bytes())
+}
+
 func WriteMQID(conn net.Conn, id string) (int, error) {
 
 	return conn.Write([]byte(id))

@@ -1,17 +1,18 @@
-tmq
+tmq (Transactional Message Queue)
 ===
 
-Create a Simple MessageQ in golang
+A Simple TCP, Multi-threaded Message Queue written in  golang
 
 ***********************************
 
-tmq is Transactional Message Queue.  Once TransStart is seen this buffers all reads / DeQueue locally untill TransEnd is seen.  If the Connection fails in the middle or if the client issues a TransAbort intentionally all the buffered Reads or pushedback into their respective queues. 
+tmq is Transactional Message Queue.  Once TransStart is seen this buffers all reads / DeQueue locally until TransEnd is seen.  If the Connection fails in the middle or if the client issues a TransAbort intentionally all the buffered Reads or pushed-back into their respective queues. 
 
-'tmq.exe' in windows and 'tmq' in Linux are the final usable binaries.  Have tried best to follow google go's recommendation on how to oranise go source code to get started you simply have to do below in a desired directory (ofcourse you need go installed in the intended environment)
+'tmq.exe' in windows and 'tmq' in Linux are the final usable binaries.  Have tried my best to follow google go's recommendation on how to organise go source code.  
+  To get started you simply have to do below under a desired directory (of-course you need go and git installed in the intended environment)
   
-`$git pull https://github.com/Dhilip-Kumar-S/tmq.git  
-$cd tmq  
-$go build tmq.go  `
+  `$git pull https://github.com/Dhilip-Kumar-S/tmq.git  
+  $cd tmq  
+  $go build tmq.go  `
 
 
 that is all.  Simples :-)
@@ -55,7 +56,7 @@ Each queue operation is atomic.
 ToDo:
 ===
   1) Improve the protocol [here] (Available in https://github.com/Dhilip-Kumar-S/tmq/blob/master/doc/TMQ_Protocol_Definition.pdf)  
-  2) Make Queue's persistant.  
+  2) Make Queues persistent.  
   3) Distributed Message Queue servers.  
 
 

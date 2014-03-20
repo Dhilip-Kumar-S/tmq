@@ -226,7 +226,7 @@ func testAll() bool {
 	runTest (testTS, "testTS")
 	runTest (testENQ, "testENQ")
 	runTest (testDQ, "testDQ")
-	runTest (testTE, "testTE")
+	//runTest (testTE, "testTE")
 	return true
 }
 

@@ -300,7 +300,21 @@ func QWorker(conn net.Conn) bool {
 			break
 
 		case SELECT:
-			
+			Trace (log.Printf, "Q_SELECT()\n")
+			var (
+				id   string
+				q    *Q
+				len int64
+			)
+			id, err = tcp.ReadMQID(conn)
+			q = GetQ(id)
+			if q != nil {
+				len = int64 (q.Len())
+				
+			} else {
+				len = -1
+			}
+			tcp.WriteINT64 (conn, len)
 			break
 
 		}
