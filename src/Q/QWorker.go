@@ -289,7 +289,7 @@ func QWorker(conn net.Conn) bool {
 
 		case TE:
 			Trace (log.Printf, "Q_TRANSEND()\n")
-			DeleteTrans (&tBuff,  &tFlag)
+			go DeleteTrans (&tBuff,  &tFlag)
 			tcp.WriteBYTE (conn, 0x00)
 			break
 
@@ -304,17 +304,17 @@ func QWorker(conn net.Conn) bool {
 			var (
 				id   string
 				q    *Q
-				len int64
+				len int32
 			)
 			id, err = tcp.ReadMQID(conn)
 			q = GetQ(id)
 			if q != nil {
-				len = int64 (q.Len())
+				len = int32(q.Len())
 				
 			} else {
 				len = -1
 			}
-			tcp.WriteINT64 (conn, len)
+			tcp.WriteINT32 (conn, len)
 			break
 
 		}
