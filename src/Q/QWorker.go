@@ -195,9 +195,13 @@ func QWorker(conn net.Conn) bool {
 				Trace (log.Printf, "Read MQID sucessfully\n")
 			}
 			q = GetQ(id)
-			ack = q.Close()
-			tcp.WriteBYTE(conn, ack)
-			Trace (log.Printf, "Sending ACK %v\n", ack)
+			if q != nil {
+				ack = q.Close()
+				tcp.WriteBYTE(conn, ack)
+				Trace (log.Printf, "Sending ACK %v\n", ack)
+			} else {
+				Trace (log.Printf, "Bad queu id id=%v\n", id)
+			}
 			break
 
 		case ENQ:
