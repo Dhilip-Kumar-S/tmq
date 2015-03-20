@@ -10,9 +10,9 @@ tmq is Transactional Message Queue.  Once TransStart is seen this buffers all re
 'tmq.exe' in windows and 'tmq' in Linux are the final usable binaries.  Have tried my best to follow google go's recommendation on how to organise go source code.  
   To get started you simply have to do below under a desired directory (of-course you need go and git installed in the intended environment)
   
-  `$git pull https://github.com/Dhilip-Kumar-S/tmq.git  
+  ```$git pull https://github.com/Dhilip-Kumar-S/tmq.git  
   $cd tmq  
-  $go build tmq.go  `
+  $GOPATH=${PWD} go build tmq.go  ```
 
 
 that is all.  Simples :-)
