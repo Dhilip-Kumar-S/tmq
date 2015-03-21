@@ -9,9 +9,9 @@ import (
 func AvailableQ() {
 
 	fmt.Println("************List of Queues are*******************")
-	qlist := Q.ListQ()
+	qlist := Q.ListAll()
 	for _, qname := range qlist {
-		fmt.Println(qname)
+		fmt.Println(qname.Name())
 	}
 	fmt.Println("*************************************************")
 
@@ -21,7 +21,7 @@ func CQ() {
 	var name string
 	fmt.Printf("Enter Q name:")
 	fmt.Scanf("%s", &name)
-	fmt.Println ("Creating Q with name:" + name)
+	fmt.Println("Creating Q with name:" + name)
 	if Q.Create(name, false) == 0 {
 		fmt.Printf("Q %s Created\n", name)
 	} else {
@@ -44,7 +44,7 @@ func Open() {
 	}
 }
 
-func SubQOptions(tmpQ Q.Q) {
+func SubQOptions(tmpQ *Q.Q) {
 
 	var opt int
 	var msg string
@@ -55,14 +55,14 @@ func SubQOptions(tmpQ Q.Q) {
 		fmt.Printf("Enter message\n")
 		fmt.Scanf("%s", &msg)
 		tmpQ.EnQ([]byte(msg), int64(len(msg)))
-		fmt.Println ("Enqued")
+		fmt.Println("Enqued")
 	} else {
 		fmt.Printf("Message in the Queue is:")
 		val, ok := tmpQ.DQ()
 		if ok {
 			fmt.Println(val.String())
 		} else {
-			fmt.Println ("Q Empty")
+			fmt.Println("Q Empty")
 		}
 
 	}
@@ -70,32 +70,31 @@ func SubQOptions(tmpQ Q.Q) {
 }
 
 func main() {
-	var q1, q2, q3 Q.Q
+	var q1, q2, q3 *Q.Q
 	var ok bool
 	var tele Q.QEle
 	Q.Init()
-	
+
 	isloop := true
-	
 
 	for isloop == true {
 		var opt int
 		AvailableQ()
-		fmt.Printf ("1.CREATE\n2.OPEN\n3.EXIT\nEnter Option:")
-		fmt.Scanf ("%d", &opt)
+		fmt.Printf("1.CREATE\n2.OPEN\n3.EXIT\nEnter Option:")
+		fmt.Scanf("%d", &opt)
 		switch opt {
-			case 1:
-				CQ()
-				break;
-			case 2:
-				Open()
-				break;
-			case 3:
-				isloop = false
-				break
+		case 1:
+			CQ()
+			break
+		case 2:
+			Open()
+			break
+		case 3:
+			isloop = false
+			break
 		}
 	}
-	
+
 	fmt.Println("Create Queues")
 	Q.Create("One", false)
 	Q.Create("Two", false)
